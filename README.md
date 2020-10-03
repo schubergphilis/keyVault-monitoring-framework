@@ -1,5 +1,5 @@
-# [Azure] Key Vault monitoring framework
-![Schubergphilis.png](/.icon/schubergphilis.png =500x)
+# [Azure] Key Vault monitoring framework  
+![Schubergphilis.png](/.icon/schubergphilis.png =500x)  
 Microsoft [Azure] Key Vault monitoring framework based on Azure Function, Powershell, Event Grid and OpsGenie.
 
 # Website
@@ -43,7 +43,7 @@ Microsoft [Azure] Key Vault monitoring framework based on Azure Function, Powers
     3. Create/Upload a Key Vault Certificate and set the expiry day, between now and 30 days in advance.
 - After the expiry event is detected and forwarded through the Event Grid subscription, the Azure Function will kick-off and send the formatted alert to the OpsGenie.
 - Please have a look at the OpsGenie section.
-- The successfully raised alert will look like
+- The successfully raised alert will look like:  
 ![OpsGenieAlert.png](/.icon/opsGenieAlert.png =500x)
 
 # Pipeline overview
@@ -74,5 +74,5 @@ Microsoft [Azure] Key Vault monitoring framework based on Azure Function, Powers
 - The whole solution is heavily pointing to the OpsGenie integration, and all Powershell helpers which are written are quite specific.
 - By reverse-engineering the Powershell helpers and looking into your OpsGenie integration, you can build the solution that best suits your needs.
 - With this in mind, we can give you some guidelines how you canb configure your OpsGenie integration, but not the full-picture, since some parts are confidential.
-- We have configured our integration to parse the Azure Monitor Metric alerts and extract specific infromations, like below, Powershell helpers are written to reflect/fit the same spectrum of information.
+- We have configured our integration to parse the Azure Monitor Metric alerts and extract specific infromations, like below, Powershell helpers are written to reflect/fit the same spectrum of information.  
 ![OpsGenieIntegration.png](/.icon/opsGenieIntegration.png =500x)
