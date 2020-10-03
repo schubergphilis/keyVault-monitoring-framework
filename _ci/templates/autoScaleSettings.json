@@ -1,0 +1,90 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "autoScalingName": {
+            "type": "string",
+            "metadata": {
+                "desription": "The name of the auto scale settings."
+            }
+        },
+        "appServicePlanResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource id of the target App Service Plan."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Insights/autoscaleSettings",
+            "apiVersion": "2015-04-01",
+            "name": "[concat(parameters('autoScalingName'),'-ass')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {
+                "profiles": [
+                    {
+                        "name": "CPUgt40pIncreaseBy1CPUlt30pDecreaseBy1",
+                        "capacity": {
+                            "minimum": 1,
+                            "maximum": 10,
+                            "default": 1
+                        },
+                        "rules": [
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricNamespace": "microsoft.web/serverfarms",
+                                    "metricResourceUri": "[parameters('appServicePlanResourceId')]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT2M",
+                                    "timeAggregation": "Average",
+                                    "operator": "GreaterThan",
+                                    "threshold": 40,
+                                    "dimensions": [
+                                    ],
+                                    "dividePerInstance": false
+                                },
+                                "scaleAction": {
+                                    "direction": "Increase",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT5M"
+                                }
+                            },
+                            {
+                                "metricTrigger": {
+                                    "metricName": "CpuPercentage",
+                                    "metricNamespace": "microsoft.web/serverfarms",
+                                    "metricResourceUri": "[parameters('appServicePlanResourceId')]",
+                                    "timeGrain": "PT1M",
+                                    "statistic": "Average",
+                                    "timeWindow": "PT5M",
+                                    "timeAggregation": "Average",
+                                    "operator": "LessThan",
+                                    "threshold": 30,
+                                    "dimensions": [
+                                    ],
+                                    "dividePerInstance": false
+                                },
+                                "scaleAction": {
+                                    "direction": "Decrease",
+                                    "type": "ChangeCount",
+                                    "value": 1,
+                                    "cooldown": "PT5M"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "enabled": true,
+                "name": "[concat(parameters('autoScalingName'),'-ass')]",
+                "targetResourceUri": "[parameters('appServicePlanResourceId')]",
+                "notifications": [
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appServicePlanName": {
+            "type": "string"
+        },
+        "appServicePlanSku": {
+            "type": "object",
+            "defaultValue": {
+                "Name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            }
+        }
+    },
+    "resources": [
+        {
+            "comments": "Create the App Service Plan",
+            "type": "Microsoft.Web/serverfarms",
+            "kind": "app",
+            "name": "[parameters('appServicePlanName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "name": "[parameters('appServicePlanName')]",
+                "perSiteScaling": false,
+                "reserved": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            },
+            "sku": "[parameters('appServicePlanSku')]",
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "appServicePlanResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+        }
+    }
+}

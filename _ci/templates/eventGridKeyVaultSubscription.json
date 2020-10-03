@@ -1,0 +1,91 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "eventGridSubscriptionName": {
+            "type": "string",
+            "defaultValue": "subToResources",
+            "metadata": {
+                "description": "The name of the event subscription to create."
+            }
+        },
+        "eventGridTopicName": {
+            "type": "string",
+            "metadata": {
+                "description": "The URL for the WebHook to receive events. Create your own endpoint for events."
+            }
+        },
+        "includedEventTypes": {
+            "type": "array",
+            "defaultValue": [ "All" ]
+        },
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
+        },
+        "functionAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
+        },
+        "functionName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
+        },
+        "funAppResourceGroup": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]"
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('eventGridTopicName')]",
+            "type": "Microsoft.EventGrid/systemTopics",
+            "apiVersion": "2020-04-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "source": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+                "topicType": "Microsoft.KeyVault.vaults"
+            }
+        },
+        {
+            "name": "[concat(parameters('eventGridTopicName'), '/', parameters('eventGridSubscriptionName'))]",
+            "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+            "apiVersion": "2020-04-01-preview",
+            "properties": {
+                "destination": {
+                    "endpointType": "AzureFunction",
+                    "properties": {
+                        "resourceId": "[resourceId(parameters('funAppResourceGroup'), 'Microsoft.Web/sites/functions/', parameters('functionAppName'), parameters('functionName'))]"
+                    }
+                },
+                "filter": {
+                    "subjectBeginsWith": "",
+                    "subjectEndsWith": "",
+                    "isSubjectCaseSensitive": false,
+                    "includedEventTypes": "[parameters('includedEventTypes')]"
+                }
+            },
+            "dependsOn": [
+                "[concat('Microsoft.EventGrid/systemTopics/', parameters('eventGridTopicName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.EventGrid/systemTopics/providers/locks",
+            "apiVersion": "2016-09-01",
+            "name": "[concat(parameters('eventGridTopicName'), '/Microsoft.Authorization/eventSubscriptionsDoNotDelete')]",
+            "dependsOn": [
+                "[concat('Microsoft.EventGrid/systemTopics/', parameters('eventGridTopicName'))]"
+            ],
+            "comments": "Resource lock on event grid subscription",
+            "properties": {
+                "level": "CannotDelete"
+            }
+        }
+    ]
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.1",
+    "parameters": {
+        "eventGridTopicName": {
+            "value": "KeyVaultTopics"
+        },
+        "diagnosticLogAnalyticsWorkspaceId": {
+            "value": "/subscriptions/ff71f96e-e71c-4f91-ab4b-da54ff0cc73c/resourcegroups/shrd-acc001-weu-core-rsg/providers/microsoft.operationalinsights/workspaces/shrd-acc001-weu-core-law"
+        },
+        "includedEventTypes": {
+            "value": [
+                "Microsoft.KeyVault.KeyNearExpiry",
+                "Microsoft.KeyVault.CertificateNearExpiry",
+                "Microsoft.KeyVault.SecretNearExpiry",
+                "Microsoft.KeyVault.SecretNewVersionCreated",
+                "Microsoft.KeyVault.CertificateNewVersionCreated",
+                "Microsoft.KeyVault.KeyNewVersionCreated"
+            ]
+        }
+    }
+}

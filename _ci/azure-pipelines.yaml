@@ -1,0 +1,57 @@
+name: $(date:yyyy.M.d)-$(Build.SourceBranchName)-$(date:HHmm)
+
+parameters:
+  - name: connectedServiceName
+    type: string
+    default: neo-spn
+
+  - name: resourceGroupName
+    type: string
+    default: keyVault-monitor
+
+  - name: environment
+    type: string
+    default: prd001
+
+  - name: resourceName
+    type: string
+    default: kvdemo
+  
+  - name: opsGenieWebhook
+    type: string
+    default: TOBECHANGED ###
+
+variables:
+- name: vmImage
+  value: windows-latest
+
+- name: artifactName
+  value: drop
+
+- name: artifactArchive
+  value: build$(Build.BuildId).zip
+
+stages:
+- template: stages/build.yaml
+  parameters:
+    Functions:
+      - kv-event-monitor
+      - kv-event-scheduler
+    vmImage: $(vmImage)
+    environment: ${{ parameters.environment }}
+    artifactArchive: $(artifactArchive)
+    artifactName: $(artifactName)
+    
+
+- template: stages/deploy.yaml
+  parameters:
+    dependsOn: Build
+    vmImage: $(vmImage)
+    environment: ${{ parameters.environment }}
+    location: West Europe
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    resourceName: ${{ parameters.resourceName }}
+    artifactArchive: $(artifactArchive)
+    artifactName: $(artifactName)
+    opsGenieWebhook: ${{ parameters.opsGenieWebhook }}

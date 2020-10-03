@@ -1,0 +1,121 @@
+parameters:
+  - name: dependsOn
+    type: string
+
+  - name: vmImage
+    type: string
+
+  - name: environment
+    type: string
+
+  - name: location
+    type: string
+
+  - name: connectedServiceName
+    type: string
+
+  - name: resourceGroupName
+    type: string
+
+  - name: resourceName
+    type: string
+
+  - name: artifactName
+    type: string
+
+  - name: artifactArchive
+    type: string
+
+  - name: opsGenieWebhook
+    type: string
+
+stages:
+  - stage: ${{ format('Deploy_{0}', parameters.environment ) }}
+    dependsOn: ${{ parameters.dependsOn }}
+    variables:      
+      - name: resourceEnvironment
+        value: ${{ format('{0}{1}', parameters.resourceName, parameters.environment ) }}
+      - template: variables/vars.yaml
+
+    jobs:
+      - job: Deploy
+        pool:
+          vmImage: ${{ parameters.vmImage }}
+        steps:
+          - checkout: self
+            clean: true
+
+          - template: steps/deployKeyVault.yaml
+            parameters:
+              connectedServiceName: ${{ parameters.connectedServiceName }}
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              keyVaultName: $(keyVaultName)
+              location: ${{ parameters.location }}
+
+          - template: steps/deployKeyVaultSecrets.yml
+            parameters:
+              connectedServiceName: ${{ parameters.connectedServiceName }}
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              keyVaultName: $(keyVaultName)
+              location: ${{ parameters.location }}
+              secretObject:
+                - SecretName: $(opsGenieSecretName)
+                  SecretValue: ${{ parameters.opsGenieWebhook }}
+
+          - template: steps/deployFunctionApp.yaml
+            parameters:
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              connectedServiceName: ${{ parameters.connectedServiceName }}
+              location: ${{ parameters.location }}
+              storageAccountName: $(storageAccountName)
+              appServicePlanName: $(appServicePlanName)
+              appInsightsName: $(appInsightsName)
+              funAppName: $(funAppName)
+              artifactName: ${{ parameters.artifactName }}
+              artifactArchive: ${{ parameters.artifactArchive }}
+
+          - task: AzureResourceGroupDeployment@2
+            displayName: Deploy keyVault accessPolicy
+            inputs:
+              ConnectedServiceName: ${{ parameters.connectedServiceName }}
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              location: ${{ parameters.location }}
+              csmFile: $(templatesPath)/keyVaultAccessPolicy.json
+              overrideParameters: -keyVaultName $(keyVaultName) -objectId $(functionprincipalId) -secretsPermissions ["get"]
+
+          - task: AzureAppServiceSettings@1
+            displayName: Deploy appService settings
+            inputs:
+              ConnectedServiceName: ${{ parameters.connectedServiceName }}
+              appName: $(funAppName)
+              appSettings: |
+                [
+                  { "name": "PSWorkerInProcConcurrencyUpperBound", "value": "2", "slotSetting": false },
+                  { "name": "powerShellVersion", "value": "~7", "slotSetting": false },
+                  { "name": "FUNCTIONS_WORKER_RUNTIME_VERSION", "value": "~7", "slotSetting": false },
+                  { "name": "StorageTablePartitionKey", "value": "eventmonitoring", "slotSetting": false },
+                  { "name": "StorageTableName", "value": "keyvaultmonitor", "slotSetting": false },
+                  { "name": "OpsGenieWebHook", "value": "$(opsGenieWebHookReference)", "slotSetting": false }
+                ]
+
+          - task: AzureResourceGroupDeployment@2
+            displayName: Deploy eventGrid
+            inputs:
+              ConnectedServiceName: ${{ parameters.connectedServiceName }}
+              resourceGroupName: ${{ parameters.resourceGroupName }}
+              location: ${{ parameters.location }}
+              csmFile: $(templatesPath)/eventGridKeyVaultSubscription.json
+              overrideParameters: >
+                -functionAppName $(funAppName)
+                -functionName kv-event-monitor
+                -keyVaultName $(keyVaultName)
+                -funAppResourceGroup ${{ parameters.resourceGroupName }}
+                -eventGridTopicName $(eventGridTopicName)
+                -includedEventTypes [
+                  "Microsoft.KeyVault.KeyNearExpiry",
+                  "Microsoft.KeyVault.CertificateNearExpiry",
+                  "Microsoft.KeyVault.SecretNearExpiry",
+                  "Microsoft.KeyVault.SecretNewVersionCreated",
+                  "Microsoft.KeyVault.CertificateNewVersionCreated",
+                  "Microsoft.KeyVault.KeyNewVersionCreated"
+                ]

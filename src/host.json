@@ -1,0 +1,33 @@
+{
+  "version": "2.0",
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[1.*, 2.0.0)"
+  },
+  "managedDependency": {
+    "enabled": true
+  },
+  "logging": {
+    "logLevel": {
+      "default": "Trace",
+      "fileLoggingMode": "Trace"
+    }
+  },
+  "extensions": {
+    "queues": {
+      "maxPollingInterval": "00:00:30",
+      "visibilityTimeout": "00:00:30",
+      "batchSize": 1,
+      "maxDequeueCount": 5,
+      "newBatchThreshold": 2
+    }
+  },
+  "healthMonitor": {
+    "enabled": true,
+    "healthCheckInterval": "00:00:10",
+    "healthCheckWindow": "00:01:00",
+    "healthCheckThreshold": 3,
+    "counterThreshold": 0.80
+  },
+  "functionTimeout": "00:09:00"
+}
