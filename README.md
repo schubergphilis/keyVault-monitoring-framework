@@ -1,5 +1,5 @@
 # [Azure] Key Vault monitoring framework  
-![Schubergphilis.png](icon/schubergphilis.png =500x)  
+![Schubergphilis.png](icon/schubergphilis.png)  
 Microsoft [Azure] Key Vault monitoring framework based on Azure Function, Powershell, Event Grid and OpsGenie.
 
 # Website
