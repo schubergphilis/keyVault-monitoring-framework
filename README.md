@@ -1,6 +1,6 @@
 # [Azure] Key Vault monitoring framework  
 ![Schubergphilis.png](icon/schubergphilis.png)  
-**Microsoft [Azure] Key Vault monitoring framework** based on Azure Function, Powershell, Event Grid and OpsGenie.
+- ### **Microsoft [Azure] Key Vault monitoring framework** based on Azure Function, Powershell, Event Grid and OpsGenie.
 
 # Website
 - Visit **Schuberg Philis** official web page https://schubergphilis.com/
