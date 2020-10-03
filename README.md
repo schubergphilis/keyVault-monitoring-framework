@@ -1,6 +1,5 @@
 # [Azure] Key Vault monitoring framework  
 ![Schubergphilis.png](icon/schubergphilis.png)  
-- ### **Microsoft [Azure] Key Vault monitoring framework** based on Azure Function, Powershell, Event Grid and OpsGenie.
 
 # Website
 - Visit **Schuberg Philis** official web page https://schubergphilis.com/
@@ -11,6 +10,7 @@
 - For the demo purposes, we have stripped out(removed) all non-generic(sensitive) information from the solutuion, such as code blocks, subscription IDs, etc.
 
 # Overview
+- **Microsoft [Azure] Key Vault monitoring framework** based on Azure Function, Powershell, Event Grid and OpsGenie.
 - With the available option of utilizing the Key Vault events through the desired automation engine, we have designed and implemented the Key Vault monitoring framework.
 - The framework is capable of:
 1. Monitoring all entities that can be stored in the Key Vault, at the moment they are: Keys, Secrets, and Certificates.
