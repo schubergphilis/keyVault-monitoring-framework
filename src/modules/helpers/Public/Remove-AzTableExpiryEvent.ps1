@@ -1,4 +1,20 @@
 function Remove-AzTableExpiryEvent {
+    <#
+    .SYNOPSIS
+    Removes data from Azure Table.
+    
+    .DESCRIPTION
+    Removes data about an expiry event(if found) from the Azure Storage Table.
+    
+    .PARAMETER CloudTable
+    CloudTable context.
+    
+    .PARAMETER PartitionKey
+    Name of the storage table partition key.
+    
+    .PARAMETER RowKey
+    Name of the storage table row key.
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]

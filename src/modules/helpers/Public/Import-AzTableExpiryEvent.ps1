@@ -1,4 +1,20 @@
 function Import-AzTableExpiryEvent {
+    <#
+    .SYNOPSIS
+    Import data into Azure Table.
+    
+    .DESCRIPTION
+    Imports data coming from the Event Grid Key Vault event into the Azure Storage table.
+    
+    .PARAMETER CloudTable
+    CloudTable context.
+    
+    .PARAMETER PartitionKey
+    Name of the storage table partition key.
+    
+    .PARAMETER Data
+    Data which will be stored in the Azure Storage table.
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]

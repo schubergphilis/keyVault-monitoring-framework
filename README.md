@@ -9,7 +9,7 @@
 - Schuberg Philis has designed and implemented this solution for its customers.
 - For the demo purposes, we have stripped out(removed) all non-generic(sensitive) information from the solution, such as code blocks, subscription IDs, etc.
 
-# Overview
+# Solution Overview
 - **Microsoft [Azure] Key Vault monitoring framework** based on Azure Function, Powershell, Event Grid, and OpsGenie.
 - With the available option of utilizing the Key Vault events through the desired automation engine, we have designed and implemented the Key Vault monitoring framework.
 - The framework is capable of:
@@ -17,6 +17,30 @@
 2. Raising alerts via OpsGenie - this can be refined to fit your pager duty system.
 3. Dealing with re-occurrence/reminders, raising the alert more than once - on daily basis, so you do not forget about your expiries.
 - We wrote/created the whole structure of the deployment/pipeline utilizing the Azure DevOps logic, to reflect Microsoft principles.
+
+# Pipeline overview
+- If you're more into reading the pipeline code, please skip this section.  
+- Multiple components are comprising the pipeline, we have utilized Powershell helpers, ARM templates, and YAML syntax to achieve the goal.  
+- The pipeline is defined into two stages.  
+
+## Build stage
+    - Scans source(Powershell) code via the PSScrypt Analyzer tool.
+    - Archives source code, both Azure Function code and Powershell helper module.
+    - Publishes the package/artifact, so that the next stage can consume it.
+
+## Deploy stage
+    - Does some variable magic to construct the names of the services which will be deployed, you can check the variables folder inside the stages folder, to get more context.
+    - Deploys the Key Vault, where the OpsGenie webhook will be stored, and the same Key Vault will subscribe to its events to the(see further) Azure Function.
+    - Deploys Key Vault secret - OpsGenie webhook is deployed as a secret, and the secret is later on referenced through the app configuration.
+    - Deploys the Azure Function app.
+        - Storage account where function app runtime files will be stored, as well as the storage table which will be used for the event/state tracking.
+        - App service plan - server power that will host our function app.
+        - Autoscale settings, some basic scaling settings for our app service plan.
+        - Azure Function - as the main component of this step.
+        - Artifact that was generated during the Build stage, is being picked up and deployed as a function app code.
+    - Deploys Key Vault access policy, object ID/function app principal is authorized to retrieve secrets from the Key Vault, to consume the OpsGenie webhook.
+    - Deploys app service settings, some Powershell configuration parameters, such as runtime version, and Key Vault reference.
+    - Deploys Event Grid subscription, creates the connection between Key Vault and Azure Function so that Key Vault events are being forwarded to the proper endpoint.
 
 # Deployment
 - We assume that you have in place your Azure subscription and Azure DevOps organization.
@@ -45,30 +69,6 @@
 - Please have a look at the OpsGenie section.
 - The successfully raised alert will look like:  
 ![OpsGenieAlert.png](/icon/opsGenieAlert.png)
-
-# Pipeline overview
-- If you're more into reading the pipeline code, please skip this section.  
-- Multiple components are comprising the pipeline, we have utilized Powershell helpers, ARM templates, and YAML syntax to achieve the goal.  
-- The pipeline is defined into two stages.  
-
-## Build stage
-    - Scans source(Powershell) code via the PSScrypt Analyzer tool.
-    - Archives source code, both Azure Function code and Powershell helper module.
-    - Publishes the package/artifact, so that the next stage can consume it.
-
-## Deploy stage
-    - Does some variable magic to construct the names of the services which will be deployed, you can check the variables folder inside the stages folder, to get more context.
-    - Deploys the Key Vault, where the OpsGenie webhook will be stored, and the same Key Vault will subscribe to its events to the(see further) Azure Function.
-    - Deploys Key Vault secret - OpsGenie webhook is deployed as a secret, and the secret is later on referenced through the app configuration.
-    - Deploys the Azure Function app.
-        - Storage account where function app runtime files will be stored, as well as the storage table which will be used for the event/state tracking.
-        - App service plan - server power that will host our function app.
-        - Autoscale settings, some basic scaling settings for our app service plan.
-        - Azure Function - as the main component of this step.
-        - Artifact that was generated during the Build stage, is being picked up and deployed as a function app code.
-    - Deploys Key Vault access policy, object ID/function app principal is authorized to retrieve secrets from the Key Vault, to consume the OpsGenie webhook.
-    - Deploys app service settings, some Powershell configuration parameters, such as runtime version, and Key Vault reference.
-    - Deploys Event Grid subscription, creates the connection between Key Vault and Azure Function so that Key Vault events are being forwarded to the proper endpoint.
 
 # OpsGenie overview
 - The whole solution is heavily pointing to the OpsGenie integration, and all Powershell helpers which are written are quite specific.

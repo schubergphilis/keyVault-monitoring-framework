@@ -1,4 +1,17 @@
 function Test-AzStorageTableContext {
+    <#
+    .SYNOPSIS
+    Creates storage context.
+    
+    .DESCRIPTION
+    Creates Azure storage context between session and target storage account.
+    
+    .PARAMETER ConnectionString
+    Connection String of the storage account.
+    
+    .PARAMETER TableName
+    Name of the storage table.
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
