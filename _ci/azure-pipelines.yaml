@@ -3,7 +3,7 @@ name: $(date:yyyy.M.d)-$(Build.SourceBranchName)-$(date:HHmm)
 parameters:
   - name: connectedServiceName
     type: string
-    default: neo-spn
+    default: schubergphilis-spn
 
   - name: resourceGroupName
     type: string
