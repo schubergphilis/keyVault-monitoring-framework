@@ -19,7 +19,7 @@ parameters:
   
   - name: opsGenieWebhook
     type: string
-    default: TOBECHANGED ###
+    default: YourOpsGenieWebhook
 
 variables:
 - name: vmImage
@@ -35,13 +35,12 @@ stages:
 - template: stages/build.yaml
   parameters:
     Functions:
-      - kv-event-monitor
-      - kv-event-scheduler
+      - keyVault-monitor
+      - keyVault-scheduler
     vmImage: $(vmImage)
     environment: ${{ parameters.environment }}
     artifactArchive: $(artifactArchive)
     artifactName: $(artifactName)
-    
 
 - template: stages/deploy.yaml
   parameters:

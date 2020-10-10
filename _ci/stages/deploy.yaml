@@ -107,7 +107,7 @@ stages:
               csmFile: $(templatesPath)/eventGridKeyVaultSubscription.json
               overrideParameters: >
                 -functionAppName $(funAppName)
-                -functionName kv-event-monitor
+                -functionName keyVault-monitor
                 -keyVaultName $(keyVaultName)
                 -funAppResourceGroup ${{ parameters.resourceGroupName }}
                 -eventGridTopicName $(eventGridTopicName)
