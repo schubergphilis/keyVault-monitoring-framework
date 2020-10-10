@@ -1,7 +1,7 @@
 # [Azure] Key Vault Monitoring Framework  
 ![Schubergphilis.png](icon/schubergphilis.png)  
 
-# Website
+# Informational
 - Visit **Schuberg Philis** official web page https://schubergphilis.com/
 - To get the **full picture** about this project, please read the Medium story.
 
@@ -89,5 +89,3 @@
 
 # Feedback
 - We are happy to receive your feedback about improvements, feel free to send us a pull request.
-
-## Schuberg Philis
