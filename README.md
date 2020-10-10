@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/schubergphilis/SBP%20Azure%20Circle/_apis/build/status/%5BMEDIUM%5D%20-%20Do%20not%20run%20or%20change%20-%20keyVault-monitoring-framework?branchName=master)](https://dev.azure.com/schubergphilis/SBP%20Azure%20Circle/_build/latest?definitionId=151&branchName=master)  
 # [Azure] Key Vault Monitoring Framework  
 ![Schubergphilis.png](icon/schubergphilis.png)  
 
