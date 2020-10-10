@@ -51,18 +51,6 @@
                     "days": "7"
                 }
             }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/providers/locks",
-            "apiVersion": "2016-09-01",
-            "name": "[concat(parameters('storageAccountName'), '/Microsoft.Authorization/storageAccountDoNotDelete')]",
-            "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
-            ],
-            "comments": "Resource lock on Storage Account",
-            "properties": {
-                "level": "CannotDelete"
-            }
         }
     ],
     "outputs": {

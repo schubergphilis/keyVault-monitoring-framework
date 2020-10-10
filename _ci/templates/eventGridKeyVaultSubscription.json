@@ -74,18 +74,6 @@
             "dependsOn": [
                 "[concat('Microsoft.EventGrid/systemTopics/', parameters('eventGridTopicName'))]"
             ]
-        },
-        {
-            "type": "Microsoft.EventGrid/systemTopics/providers/locks",
-            "apiVersion": "2016-09-01",
-            "name": "[concat(parameters('eventGridTopicName'), '/Microsoft.Authorization/eventSubscriptionsDoNotDelete')]",
-            "dependsOn": [
-                "[concat('Microsoft.EventGrid/systemTopics/', parameters('eventGridTopicName'))]"
-            ],
-            "comments": "Resource lock on event grid subscription",
-            "properties": {
-                "level": "CannotDelete"
-            }
         }
     ]
 }

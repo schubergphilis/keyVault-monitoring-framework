@@ -64,18 +64,6 @@
                 },
                 "networkAcls": "[parameters('keyVaultNetworkAcls')]"
             }
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults/providers/locks",
-            "apiVersion": "2016-09-01",
-            "name": "[concat(parameters('keyVaultName'), '/Microsoft.Authorization/keyVaultDoNotDelete')]",
-            "dependsOn": [
-                "[concat('Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]"
-            ],
-            "comments": "Resource lock on key vault",
-            "properties": {
-                "level": "CannotDelete"
-            }
         }
     ],
     "outputs": {
