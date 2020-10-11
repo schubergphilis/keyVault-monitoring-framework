@@ -43,7 +43,6 @@ function New-OpsGenieExpiryAlert {
         $now = [datetime]::UtcNow
         $eventExpiry = [System.DateTimeOffset]::FromUnixTimeSeconds($SubjectData.EXP).UtcDateTime
         $universalDateTimeFormat = Get-Date -Date $EventTime -Format 'FileDateTimeUniversal'
-        $dateFormated = $universalDateTimeFormat.Insert('4', '-').Insert('7', '-').Insert('13', ':').Insert('16', ':').Insert('19', '.')
         $resourceName = $ResourceId.Split('/')[-1]
         $resourceGroup = $ResourceId.Split('/')[4]
         $subscriptionId = $ResourceId.Split('/')[2]
@@ -62,7 +61,7 @@ function New-OpsGenieExpiryAlert {
                 properties = $null
                 status     = 'Activated'
                 context    = @{
-                    timestamp         = $dateFormated
+                    timestamp         = $universalDateTimeFormat
                     id                = '{0}/metricalerts/{1}/{2}-{3}' -f $ResourceId, $EventType.Replace('.', '-'), $SubjectData.ObjectName, $SubjectData.Version
                     name              = $resourceName
                     description       = 'The {0} [{1} version: {2}] in the KeyVault [{3}] has produced an event of the type [{4}]' -f $SubjectData.ObjectType, $SubjectData.ObjectName, $SubjectData.Version, $SubjectData.VaultName, $EventType.Split('.')[2]
