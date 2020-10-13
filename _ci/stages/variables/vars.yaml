@@ -1,0 +1,12 @@
+variables:
+  ciPath: $(Pipeline.Workspace)/s/_ci
+  templatesPath: $(ciPath)/templates
+  scriptsPath: $(ciPath)/scripts
+  keyVaultName: "$(resourceEnvironment)-kvt"
+  storageAccountName: "$(resourceEnvironment)sta"
+  appServicePlanName: "$(resourceEnvironment)-asp"
+  appInsightsName: "$(resourceEnvironment)-ais"
+  funAppName: "$(resourceEnvironment)-fun" 
+  opsGenieSecretName: opsGenieWebHook
+  opsGenieWebHookReference: '@Microsoft.Keyvault(SecretUri=https://$(keyVaultName).vault.azure.net/secrets/$(opsGenieSecretName))'
+  eventGridTopicName: "$(keyVaultName)-events"

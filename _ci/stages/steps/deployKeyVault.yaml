@@ -1,0 +1,41 @@
+parameters:
+- name: connectedServiceName
+  type: string
+
+- name: resourceGroupName
+  type: string
+
+- name: keyVaultName
+  type: string
+  
+- name: location
+  type: string
+
+steps:
+- task: AzurePowerShell@5
+  displayName: Find keyVaultID
+  inputs:
+    azureSubscription: ${{ parameters.connectedServiceName }}
+    ScriptType: FilePath
+    ScriptPath: $(scriptsPath)/Export-AzureResourceId.ps1
+    ScriptArguments: >
+      -VariableName 'keyVaultId'
+      -ResourceName ${{ parameters.keyVaultName }}
+    azurePowerShellVersion: 'LatestVersion'
+    pwsh: true
+
+- task: AzureResourceGroupDeployment@2
+  displayName: Deploy keyVault
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile: $(templatesPath)/keyVault.json
+    overrideParameters: >
+      -keyVaultName ${{ parameters.keyVaultName }}
+    deploymentOutputs: keyVaultOutputs
+
+- template: armOutputVariables.yml
+  parameters:
+    deploymentOutputName: keyVaultOutputs
+    displayName: Fetch keyVaultOutputs

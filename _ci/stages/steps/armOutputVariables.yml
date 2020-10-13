@@ -1,0 +1,26 @@
+parameters:
+- name: displayName
+  type: string
+  default: Arm Output to variables
+
+- name: deploymentOutputName
+  type: string
+
+- name: variablePrefix
+  type: string
+  default: ''
+
+steps:
+- powershell: |
+    $output = Get-Item env:$env:outputVar | Select -ExpandProperty Value
+    $json = $output | ConvertFrom-Json
+    foreach ($key in $json.psobject.properties.name) {
+      $value = $json.$key.value
+      $setvar = "vso[task.setvariable variable=$env:prefix$key;]$value"
+      Write-Host $setvar
+      Write-Host "##$setvar"
+    }
+  displayName: ${{ parameters.displayName }}
+  env:
+    outputVar: ${{ parameters.deploymentOutputName }}
+    prefix: ${{ parameters.variablePrefix }}

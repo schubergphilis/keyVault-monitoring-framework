@@ -1,0 +1,50 @@
+parameters:
+- name: Functions
+  type: object
+
+- name: vmImage
+  type: string
+
+- name: environment
+  type: string
+
+- name: artifactName
+  type: string
+
+- name: artifactArchive
+  type: string
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        pool:
+          vmImage: ${{ parameters.vmImage }}
+        variables: 
+          - template: variables/vars.yaml
+        steps:
+        - checkout: self
+          clean: true
+
+        - powershell: |
+            if (-not (Get-Module -Name PSScriptAnalyzer -ListAvailable)) {
+              Install-Module PSScriptAnalyzer -Repository PSGallery -Force -Confirm:$false
+            }
+            Import-Module PSScriptAnalyzer
+          displayName: Install PSSCriptAnalyzer
+
+        - ${{ each Function in parameters.Functions }}:
+            - powershell: |
+                Invoke-ScriptAnalyzer -Path $(System.DefaultWorkingDirectory)/src/${{ Function }}
+              displayName: Analyze ${{ Function }} code via PSScryptAnalyzer
+
+        - task: ArchiveFiles@2
+          displayName: 'Archive source files'
+          inputs:
+            rootFolderOrFile: $(System.DefaultWorkingDirectory)/src/
+            includeRootFolder: false
+            archiveFile: $(System.DefaultWorkingDirectory)/${{ parameters.artifactArchive }}
+
+        - publish: $(System.DefaultWorkingDirectory)/${{ parameters.artifactArchive }}
+          artifact: ${{ parameters.artifactName }}
+          displayName: Publish build artifact

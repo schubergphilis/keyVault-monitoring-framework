@@ -1,0 +1,62 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Storage Account."
+            }
+        },
+        "storageAccountSKU": {
+            "type": "string",
+            "metadata": {
+                "description": "Type of the Storage Account (SKU)."
+            },
+            "defaultvalue": "Standard_LRS"
+        },
+        "storageAccountKind": {
+            "type": "string",
+            "defaultValue": "StorageV2",
+            "metadata": {
+                "description": "The kind of the storage account"
+            }
+        },
+        "storageAccountNetworkACL": {
+            "type": "object",
+            "metadata": {
+                "description": "The allowed Azure services or IP addresses to access the storage account"
+            },
+            "defaultValue": {
+                "defaultAction": "Allow",
+                "bypass": "AzureServices"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[parameters('storageAccountName')]",
+            "apiVersion": "2019-06-01",
+            "location": "[resourcegroup().location]",
+            "sku": {
+                "name": "[parameters('storageAccountSKU')]"
+            },
+            "kind": "[parameters('storageAccountKind')]",
+            "properties": {
+                "networkAcls": "[parameters('storageAccountNetworkACL')]",
+                "allowBlobPublicAccess": "false",
+                "deleteRetentionPolicy": {
+                    "enabled": "true",
+                    "days": "7"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "storageAccountConnectionString": {
+            "type": "string",
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value)]"
+        }
+    }
+}

@@ -1,0 +1,75 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyVaultName": {
+            "type": "string"
+        },
+        "keyVaultId": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "keyVaultSku": {
+            "type": "string",
+            "defaultValue": "Standard",
+            "allowedValues": [
+                "Standard",
+                "Premium"
+            ],
+            "metadata": {
+                "description": "SKU for the vault"
+            }
+        },
+        "keyVaultNetworkAcls": {
+            "type": "object",
+            "defaultValue": {
+                "defaultAction": "Allow",
+                "bypass": "AzureServices",
+                "virtualNetworkRules": [],
+                "ipRules": []
+
+            },
+            "metadata": {
+                "description": "Network Access Control rules for the Key Vault"
+            }
+        },
+        "keyVaultPurgeSoftDelete": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable the soft delete for the Key Vault"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[parameters('keyVaultName')]",
+            "apiVersion": "2016-10-01",
+            "location": "[resourcegroup().location]",
+            "tags": {
+                "DeploymentModel": "PaaS"
+            },
+            "properties": {
+                "createMode": "[if(not(empty(parameters('keyVaultId'))), 'recover', 'default')]",
+                "enableSoftDelete": "[parameters('keyVaultPurgeSoftDelete')]",
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enabledForTemplateDeployment": true,
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": "[if(not(empty(parameters('keyVaultId'))), json('null'),  json('[]'))]",
+                "sku": {
+                    "name": "[parameters('keyVaultSku')]",
+                    "family": "A"
+                },
+                "networkAcls": "[parameters('keyVaultNetworkAcls')]"
+            }
+        }
+    ],
+    "outputs": {
+        "keyVaultResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.KeyVault/vaults',parameters('keyVaultName'))]"
+        }
+    }
+}

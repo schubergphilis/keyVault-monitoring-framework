@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appInsName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "resourceId": "[resourceId('Microsoft.Insights/components', parameters('AppInsName'))]",
+        "apiVersion": "[providers('Microsoft.Insights', 'components').apiVersions[0]]"
+    },
+    "resources": [
+        {
+            "type": "microsoft.insights/components",
+            "kind": "web",
+            "name": "[parameters('appInsName')]",
+            "apiVersion": "2015-05-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "AppServiceEnablementCreate"
+            },
+            "dependsOn": []
+        }
+    ],
+    "outputs": {
+        "appInsightsResourceId": {
+            "type": "string",
+            "value": "[resourceId('microsoft.insights/components',parameters('appInsName'))]"
+        },
+        "instrumentationKey": {
+            "type": "string",
+            "value": "[reference(variables('resourceId'), variables('apiVersion')).instrumentationKey]"
+        }
+    }
+}

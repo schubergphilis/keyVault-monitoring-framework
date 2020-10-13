@@ -1,0 +1,137 @@
+parameters:
+- name: resourceGroupName
+  type: string
+
+- name: connectedServiceName
+  type: string
+
+- name: location
+  type: string
+
+- name: appServicePlanName
+  type: string
+
+- name: functionParamFile
+  type: string
+  default: ''
+
+- name: appInsightsName
+  type: string
+
+- name: funAppName
+  type: string
+
+- name: storageAccountName
+  type: string
+
+- name: appServicePlanParamFile
+  type: string
+  default: ''
+
+- name: artifactName
+  type: string
+
+- name: artifactArchive
+  type: string
+  default: ''
+
+steps:
+- task: AzureResourceGroupDeployment@2
+  displayName: Deploy storageAcccount
+  enabled: true
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile:  $(templatesPath)/storageAccount.json
+    overrideParameters: >
+      -storageAccountName ${{ parameters.storageAccountName }}
+    deploymentOutputs: storageAccountOutputs
+
+- template: armOutputVariables.yml
+  parameters:
+    deploymentOutputName: storageAccountOutputs
+    displayName: Fetch storageAccountOutputs
+
+- task: AzureResourceGroupDeployment@2
+  displayName: Deploy appServicePlan
+  enabled: true
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile:  $(templatesPath)/appServicePlan.json
+    ${{ if ne(parameters.appServicePlanParamFile, '') }}:
+      csmParametersFile: ${{ parameters.appServicePlanParamFile }}
+    overrideParameters: >
+      -appServicePlanName ${{ parameters.appServicePlanName }}
+    deploymentOutputs: appServicePlanOutputs
+
+- template: armOutputVariables.yml
+  parameters:
+    deploymentOutputName: appServicePlanOutputs
+    displayName: Fetch appServicePlanOutputs
+
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Deploy autoScale settings'
+  enabled: true
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile:  $(templatesPath)/autoScaleSettings.json
+    overrideParameters: >
+      -autoScalingName ${{ parameters.appServicePlanName }}
+      -appServicePlanResourceId $(appServicePlanResourceId)
+
+- task: AzureResourceGroupDeployment@2
+  displayName: Deploy applicationInsights
+  inputs:
+    azureSubscription: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile: '$(templatesPath)/applicationInsights.json'
+    overrideParameters: -appInsName ${{ parameters.appInsightsName }}
+    deploymentOutputs: appInsightsOutputs
+
+- template: armOutputVariables.yml
+  parameters:
+    deploymentOutputName: appInsightsOutputs
+    displayName: Fetch appInsightsOutputs
+
+- task: AzureResourceGroupDeployment@2
+  displayName: 'Deploy FunctionApp'
+  enabled: true
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    resourceGroupName: ${{ parameters.resourceGroupName }}
+    location: ${{ parameters.location }}
+    csmFile:  $(templatesPath)/functionApp.json
+    ${{ if ne(parameters.functionParamFile, '')}}:
+      csmParametersFile: ${{ parameters.functionParamFile }}
+    overrideParameters: >
+      -functionAppName ${{ parameters.funAppName }}
+      -appServicePlanResourceId $(appServicePlanResourceId)
+      -appInsightsResourceId $(appInsightsResourceId)
+      -storageAccountConnectionString $(storageAccountConnectionString)
+    deploymentOutputs: functionOutputs
+
+- template: armOutputVariables.yml
+  parameters:
+    deploymentOutputName: functionOutputs
+    displayName: Fetch functionOutputs
+
+- download: current
+  artifact: ${{ parameters.artifactName }}
+  displayName: Download functionApp artifact
+
+- task: AzureRmWebAppDeployment@4
+  displayName: Deploy functionApp code
+  inputs:
+    connectedServiceName: ${{ parameters.connectedServiceName }}
+    appType: functionApp
+    WebAppName: $(funAppName)
+    Package: $(Pipeline.Workspace)/${{ parameters.artifactName }}/${{ coalesce( parameters.artifactArchive, '*.zip') }}
+    enableCustomDeployment: true
+    DeploymentType: zipDeploy
+    TakeAppOfflineFlag: false

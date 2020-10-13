@@ -1,0 +1,196 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "functionAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
+        },
+        "appServicePlanResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource id of the target App Service Plan."
+            }
+        },
+        "appServiceIpRestrictions": {
+            "type": "Array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "IP Restrictions to access the App from the outside world"
+            }
+        },
+        "webDeploySCMIpRestrictions": {
+            "type": "Array",
+            "defaultValue": [],
+            "metadata": {
+                "description": "IP Restrictions to access Kudu website from the outside world"
+            }
+        },
+        "appInsightsResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the application insight instance that you wish to create."
+            }
+        },
+        "storageAccountConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the storage account that you wish to use."
+            }
+        },
+        "workerRuntime": {
+            "type": "string",
+            "defaultValue": "powershell",
+            "allowedValues": [
+                "node",
+                "dotnet",
+                "java",
+                "powershell"
+            ],
+            "metadata": {
+                "description": "The language worker runtime to load in the function app."
+            }
+        },
+        "functionKey": {
+            "type": "securestring",
+            "defaultValue": "[base64(newGuid())]"
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/Sites",
+            "apiVersion": "2019-08-01",
+            "name": "[parameters('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+            ],
+            "kind": "functionapp",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('functionAppName'),'.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('functionAppName'),'.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    }
+                ],
+                "serverFarmId": "[parameters('appServicePlanResourceId')]",
+                "reserved": false,
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 1536,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "[concat(parameters('functionAppName'), '/Microsoft.ApplicationInsights.AzureWebSites')]",
+                    "type": "Microsoft.Web/sites/siteextensions",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+                    ],
+                    "properties": {
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2016-08-01",
+            "name": "[concat(parameters('functionAppName'), '/', parameters('functionAppName'), '.azurewebsites.net')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+            ],
+            "properties": {
+                "siteName": "[parameters('functionAppName')]",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(parameters('functionAppName'), '/web')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]",
+                "[resourceId('Microsoft.Web/sites/siteextensions', parameters('functionAppName'), 'Microsoft.ApplicationInsights.AzureWebSites')]"
+            ],
+            "properties": {
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "",
+                "pythonVersion": "",
+                "nodeVersion": "",
+                "linuxFxVersion": "",
+                "use32BitWorkerProcess": false,
+                "alwaysOn": true,
+                "siteAuthEnabled": false,
+                "http20Enabled": true,
+                "minTlsVersion": "1.2",
+                "ftpsState": "Disabled",
+                "ipSecurityRestrictions": "[parameters('appServiceIpRestrictions')]",
+                "scmIpSecurityRestrictionsUseMain": false,
+                "scmIpSecurityRestrictions": "[parameters('webDeploySCMIpRestrictions')]"
+            }
+        },
+        {
+            "name": "[concat(parameters('functionAppName'), '/appsettings')]",
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]",
+                "[resourceId('Microsoft.Web/sites/siteextensions', parameters('functionAppName'), 'Microsoft.ApplicationInsights.AzureWebSites')]"
+            ],
+            "properties": {
+                "AzureWebJobsStorage": "[parameters('storageAccountConnectionString')]",
+                "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[parameters('storageAccountConnectionString')]",
+                "WEBSITE_CONTENTSHARE": "[toLower(parameters('functionAppName'))]",
+                "FUNCTIONS_EXTENSION_VERSION": "~3",
+                "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(parameters('appInsightsResourceId'), '2018-05-01-preview').InstrumentationKey]",
+                "FUNCTIONS_WORKER_RUNTIME": "[parameters('workerRuntime')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/host/functionkeys",
+            "name": "[concat(parameters('functionAppName'), '/default/', 'functionKey')]",
+            "apiVersion": "2016-08-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+            ],
+            "properties": {
+                "name": "argFunctionKey",
+                "value": "[parameters('functionKey')]"
+            }
+        }
+    ],
+    "outputs": {
+        "functionprincipalId": {
+            "type": "string",
+            "value": "[reference(concat('Microsoft.Web/sites/', parameters('functionAppName')), '2018-11-01', 'Full').identity.principalId]"
+        },
+        "functionAppResourceId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+        },
+        "functionKey": {
+            "type": "string",
+            "value": "[parameters('functionKey')]"
+        }
+    }
+}
