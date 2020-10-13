@@ -86,7 +86,7 @@
 - By reverse-engineering the Powershell helpers and looking into your OpsGenie integration, you can build the solution that best suits your needs.  
 - With this in mind, we can give you some guidelines on how you can configure your OpsGenie integration, but not the full-picture since some parts are confidential.  
 - We have configured our integration to parse the Azure Monitor Metric alerts and extract specific information, like below, Powershell helpers are written to reflect/fit the same spectrum of information.  
-![OpsGenieIntegration.png](/icon/opsGenieIntegration.png)
+![OpsGenieIntegration.png](/icon/)
 
 # Feedback
 - We are happy to receive your feedback about improvements, feel free to send us a pull request.
