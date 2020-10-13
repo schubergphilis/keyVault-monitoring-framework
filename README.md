@@ -1,5 +1,5 @@
 [![Build Status](https://dev.azure.com/schubergphilis/SBP%20Azure%20Circle/_apis/build/status/%5BMEDIUM%5D%20-%20Do%20not%20run%20or%20change%20-%20keyVault-monitoring-framework?branchName=master)](https://dev.azure.com/schubergphilis/SBP%20Azure%20Circle/_build/latest?definitionId=151&branchName=master)  
-# Azure Key Vault Monitoring Framework  
+# zure Key Vault Monitoring Framework  
 ![Schubergphilis.png](icon/schubergphilis.png)  
 
 # Informational
@@ -26,7 +26,7 @@
 - If the entity is about the expire and it triggers an event thirty days in advance, we do not want to raise the alert and forget about it, rather - we want to store the event data in the table and receive re-occurring alerts on a daily basis.
 - Event grid implementation against the Key Vault service. Certain events produced by the Key Vault are forwarded to the Azure Function, which is handling the event data with our pre-defined logic.
 - We are utilizing OpsGenie as a pager, to classify alerts and adjust the alert visualization, and deliver to the appropriate team.
-![keyVaultFrameworkFlow.png](icon/keyVaultFrameworkFlow.png)
+![keyVaultFrameworkFlow.png](icon/.png)
 
 # Pipeline overview
 - We wrote/created the whole structure of the deployment/pipeline utilizing the Azure DevOps logic, to reflect Microsoft principles.  
@@ -86,7 +86,7 @@
 - By reverse-engineering the Powershell helpers and looking into your OpsGenie integration, you can build the solution that best suits your needs.  
 - With this in mind, we can give you some guidelines on how you can configure your OpsGenie integration, but not the full-picture since some parts are confidential.  
 - We have configured our integration to parse the Azure Monitor Metric alerts and extract specific information, like below, Powershell helpers are written to reflect/fit the same spectrum of information.  
-![OpsGenieIntegration.png](/icon/)
+![OpsGenieIntegration.png](/icon/opsGenieIntegration.png)
 
 # Feedback
 - We are happy to receive your feedback about improvements, feel free to send us a pull request.
