@@ -26,7 +26,7 @@
 - If the entity is about the expire and it triggers an event thirty days in advance, we do not want to raise the alert and forget about it, rather - we want to store the event data in the table and receive re-occurring alerts on a daily basis.
 - Event grid implementation against the Key Vault service. Certain events produced by the Key Vault are forwarded to the Azure Function, which is handling the event data with our pre-defined logic.
 - We are utilizing OpsGenie as a pager, to classify alerts and adjust the alert visualization, and deliver to the appropriate team.
-![keyVaultFrameworkFlow.png](icon/.png)
+![keyVaultFrameworkFlow.png](icon/keyVaultFrameworkFlow.png)
 
 # Pipeline overview
 - We wrote/created the whole structure of the deployment/pipeline utilizing the Azure DevOps logic, to reflect Microsoft principles.  
