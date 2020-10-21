@@ -4,7 +4,7 @@
 
 # Informational
 - Visit **Schuberg Philis** official web page https://schubergphilis.com/
-- To get the **full picture** about this project, please read the Medium story.
+- To get the **full picture** about this project, please read the [Medium](https://stories.schubergphilis.com/speaking-serverless-azure-keyvault-monitoring-framework-9cf5a4ca381c) story.
 
 # Disclaimer
 - Schuberg Philis has designed the monitoring framework as an in-house project, which might be used and implemented across its customer environments.
@@ -62,11 +62,11 @@
 5. Commit and push the changes.
 6. In the Azure DevOps portal, navigate to Pipelines, create a new pipeline, select Azure Repos Git, select your repository, select existing YAML pipeline(file), choose /_ci/azure-pipelines.yaml and save the pipeline.
 7. Click on a run pipeline, you will be prompted to fill in some parameters, we have set some defaults that should be adjusted to fit your environment.
-    - connectedServiceName: Fill the name of the service connection that you created in step 2.
-    - resourceGroupName: Name of the resource group where the resources will be provisioned.
-    - environment: Environment name, you can leave this as a prd001(default), this parameter is used to construct the resource names.
-    - resourceName: Base name for the services which will be provisioned, adjust this to something else because the storage account with the same name might already exist (example).
-    - opsGenieWebhook: Webhook of your OpsGenie integration, this should be the same URI as for your Azure Monitor Metric alerts.  
+    - **connectedServiceName**: Fill the name of the service connection that you created in step 2.
+    - **resourceGroupName**: Name of the resource group where the resources will be provisioned.
+    - **environment**: Environment name, you can leave this as a prd001(default), this parameter is used to construct the resource names.
+    - **resourceName**: Base name for the services which will be provisioned, adjust this to something else because the storage account with the same name might already exist (example).
+    - **opsGenieWebhook**: Webhook of your OpsGenie integration, this should be the same URI as for your Azure Monitor Metric alerts.  
         - Example: https://api.opsgenie.com/v1/json/azure?apiKey=GUID
 8. Run the pipeline, take an apple, and enjoy the magic, especially if you like the green color.
 
